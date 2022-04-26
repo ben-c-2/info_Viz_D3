@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- We need to add names to nodes and link them with HTML to
+        open up pictures of the data from tableau-->
+        <meta charset="utf-8">
+        <title>D3 Test</title>
+       <style type="text/css">
+		/*
+        CSS for node appearance
+        */
+        .node {
+            fill: lightblue;
+            stroke: grey;
+            stroke-width: 2px;
+        }
+    
+        .link {
+            stroke: black;
+            stroke-width: 2px;
+        }
+		
+       </style>
+        <script type="text/javascript" src="d3/d3.v3.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+         //window for d3
+         var width = 700,
+            height = 500;
+        //generating nodes with who to connect with
+        //Someone needs to add whatever the other connections are
+        var links = [
+            {source: 'Richard Fox', target: 'Meryl Pastuch'},
+            {source: 'Meryl Pastuch', target: 'Rosalia Larroque'},
+            {source: 'Rosalia Larroque', target: 'Richard Fox'},
+            {source: 'Richard Fox', target: 'Kerstin Belveal'},
+        ];
+
+        var nodes = {};
+        //adds all of the nodes without repeating
+        links.forEach(function(link){
+            link.source = nodes[link.source] ||
+                (nodes[link.source] = {name: link.source});
+            link.target = nodes[link.target] ||
+                (nodes[link.target] = {name: link.source});
+        })
+
+        var svg = d3.select('body').append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+        var force = d3.layout.force()
+            .size([width, height])
+            .nodes(d3.values(nodes))
+            .links(links)
+            .on("tick", tick)
+            .linkDistance(100)
+            .start();
+
+        var link = svg.selectAll('.link')
+            .data(links)
+            .enter().append('line')
+            .attr('class', 'link');
+
+        //Someone needs to change the width to be dynamic depending on how many connections
+        var node = svg.selectAll('.node')
+            .data(force.nodes())
+            .enter().append('circle')
+            .attr('class', 'node')
+            .attr('r', width = 5);
+
+        //Tick is the dragging function of the graph
+        function tick(e){
+            node.attr('cx', function(d) {return d.x;})
+            node.attr('cy', function(d) {return d.y;})
+            .call(force.drag);
+
+            link.attr('x1', function(d) {return d.source.x; })
+            link.attr('y1', function(d) {return d.source.y; })
+            link.attr('x2', function(d) {return d.target.x; })
+            link.attr('y2', function(d) {return d.target.y; })
+        }
+        
+        </script>
+    
+    </body>
+</html>
